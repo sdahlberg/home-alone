@@ -1,18 +1,18 @@
 # ARP Network Monitor
-This application is a network monitoring tool that allows you to view the ARP (Address Resolution Protocol) scanning results of a local network over HTTP on port 8080. This is especially useful for monitoring the uptime of devices that do not support traditional pinging methods over ICMP (Internet Control Message Protocol) or TCP (Transmission Control Protocol).
+This application is a network monitoring tool that allows you to view the ARP (Address Resolution Protocol) scanning results of a local network over HTTP on port 8081. This is especially useful for monitoring the uptime of devices that do not support traditional pinging methods over ICMP (Internet Control Message Protocol) or TCP (Transmission Control Protocol).
 
 Please note no particular importance was given to validating the input parameters. This script is meant to be run on a trusted and secured host with sanitized inputs.
 
 ## Features
 - Offers a frequently refreshed view of your local networks' ARP scanning results.
-- HTTP Accessibility: Provides easy access to the scan results over HTTP on port 8080, making it readily available for any device connected to the network.
+- HTTP Accessibility: Provides easy access to the scan results over HTTP on port 8081, making it readily available for any device connected to the network.
 - Compatibility: An ideal solution for target devices that do not support traditional pinging methods over ICMP or TCP.
 - Can scan multiple networks
 - Adjustable frequency
 - Optional JSON output
 - Possibility to scan more than one network at once
 - Parametrisation of target networks, interfaces, and scan frequency via docker parameters
-- No need for NET_ADMIN capability by moving to port 8080
+- No need for NET_ADMIN capability by moving to port 8081
 
 ## Setup
 Setting up the ARP Monitor is straightforward. Follow the steps below:
@@ -56,7 +56,7 @@ or
 
 JSON reults will look like this:
 ```
-$ curl --silent http://localhost:8080 | jq
+$ curl --silent http://localhost:8081 | jq
 {
   "date": "2023-11-24T23:43:15Z+0000",
   "results": [
@@ -81,7 +81,7 @@ $ curl --silent http://localhost:8080 | jq
   ]
 }
 
-$ curl --silent http://localhost:8080 | jq -r '.results[] | select(.mac=="dc:a6:32:01:93:46").ip'
+$ curl --silent http://localhost:8081 | jq -r '.results[] | select(.mac=="dc:a6:32:01:93:46").ip'
 192.168.7.62
 ```
 
@@ -93,7 +93,7 @@ You can kill and delete the docker container using
 
 ## Testing
 To test whether the ARP Monitor is running correctly, you can send a request to the local server. The following command retrieves the ARP scan results:
-`curl http://localhost:8080/`
+`curl http://localhost:8081/`
 
 This should return the ARP scanning results, which are updated every 60 seconds by default or whatever you configured via the `--time` parameter.
 

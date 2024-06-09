@@ -1,25 +1,116 @@
-version: '3.0'
+version: "3.3"
 
 services:
+
   portainer:
     container_name: portainer
     image: portainer/portainer-ce
-    restart: always
+    privileged: true
+#    command: -H unix:///var/run/docker.sock
     ports:
-      - "9000:9000/tcp"
+      - "8000:8000/tcp"
     environment:
       - TZ=Europe/Amsterdam
+#      - VIRTUAL_HOST=portainer.dahlberg.nl
+#      - VIRTUAL_PORT=9000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/portainer:/data
+    restart: always
+    networks:
+      - npm-network
+
   homeassistant:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
+    ports:
+      - "8123:8123/tcp"
     volumes:
       - /opt/homeassistant/config:/config
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
-    ports:
-      - "8123:8123/tcp"
     privileged: true
     network_mode: host
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - /opt/mosquitto:/mosquitto
+      - /opt/mosquitto/data:/mosquitto/data
+      - /opt/mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  proxy:
+    container_name: nginx-proxy-manager
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - /opt/nginx-proxy-manager/data:/data
+      - /opt/nginx-proxy-manager/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    networks:
+      - npm-network
+      - npm-internal
+
+  homer:
+    container_name: homer
+    image: b4bz/homer:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/homer/assets:/www/assets
+    restart: always
+    user: 1000:1000
+
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - /opt/uptime-kuma:/app/data
+    restart: always
+
+  networkscanner:
+    image: networkscanner
+    restart: always
+    network_mode: host
+    cap_add:
+      - NET_RAW
+    deploy:
+      restart_policy:
+        condition: always
+
+#  jellyfin:
+#    container_name: jellyfin
+#    image: lscr.io/linuxserver/jellyfin:latest
+#    group_add:
+#      - "39"
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Amsterdam
+#      - DOCKER_MODS=linuxserver/mods:jellyfin-amd
+#    ports:
+#      - 8096:8096
+#    volumes:
+#      - /opt/jellyfin/config:/config
+#      - /mnt/aurora-media/series:/data/tvshows
+#      - /mnt/aurora-media/movies:/data/movies
+#    devices:
+#      - /dev/dri/renderD128:/dev/dri/renderD128
+#      - /dev/dri/card0:/dev/dri/card0    
+#     - /dev/dri:/dev/dri
+#    restart: unless-stopped
+
+networks:
+  npm-internal:
+  npm-network:
+    external: true

@@ -1,0 +1,76 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# custom added below
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.19.0.0/16
+  server_host: 0.0.0.0
+
+google_assistant:
+  project_id: home-74302
+  service_account: !include SERVICE_ACCOUNT.JSON
+  report_state: true
+  entity_config:
+    light.banklamp:
+      name: lamp boven de bank
+
+mqtt:
+  light:
+    - name: "Alle lampen"
+      unique_id: "A38A64-Alle lampen"
+      schema: json
+      command_topic: "milight/0x257B/fut091/0"
+      state_topic: "milight/states/0x257B/fut091/0"
+      brightness: true
+      color_temp: true
+      effect: true
+      effect_list:
+        - night_mode
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+        - "7"
+        - "8"
+      min_mireds: 153
+      max_mireds: 370
+      qos: 0
+      retain: false
+    - name: "Banklamp"
+      unique_id: "A38A64-Banklamp"
+      schema: json
+      command_topic: "milight/0x215/fut091/3"
+      state_topic: "milight/states/0x215/fut091/3"
+      brightness: true
+      color_temp: true
+      effect: true
+      effect_list:
+        - night_mode
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+        - "7"
+        - "8"
+      min_mireds: 153
+      max_mireds: 370
+      qos: 0
+      retain: false
+

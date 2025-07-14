@@ -1,0 +1,15 @@
+{
+  email sander.dahlberg@outlook.com
+}
+
+home.dahlberg.nl {
+  reverse_proxy 192.168.1.222:8123
+}
+
+http://hass.dahlberg.home {
+  reverse_proxy 192.168.1.222:8123
+}
+
+http://dashboard.dahlberg.home {
+  reverse_proxy homer:8080
+}

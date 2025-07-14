@@ -1,12 +1,28 @@
-version: "3.3"
-
 services:
+
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./data/caddy/data:/data
+      - ./data/caddy/config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - caddy
 
   portainer:
     container_name: portainer
     image: portainer/portainer-ce
     privileged: true
-#    command: -H unix:///var/run/docker.sock
     ports:
       - "8000:8000/tcp"
     environment:
@@ -15,102 +31,163 @@ services:
 #      - VIRTUAL_PORT=9000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/portainer:/data
+      - ./data/portainer:/data
     restart: always
     networks:
-      - npm-network
+      - caddy
 
   homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:stable"
     ports:
       - "8123:8123/tcp"
+    environment:
+      - "TZ=Europe/Amsterdam"
     volumes:
-      - /opt/homeassistant/config:/config
+      - ./config/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
     restart: unless-stopped
     privileged: true
     network_mode: host
 
+  # FIXME todo: password in config txt
   mosquitto:
+    image: eclipse-mosquitto:latest
     container_name: mosquitto
-    image: eclipse-mosquitto
     ports:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - /opt/mosquitto:/mosquitto
-      - /opt/mosquitto/data:/mosquitto/data
-      - /opt/mosquitto/log:/mosquitto/log
+      - ./config/mosquitto:/mosquitto/config
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/log:/mosquitto/log
     restart: unless-stopped
 
-  proxy:
-    container_name: nginx-proxy-manager
-    image: jc21/nginx-proxy-manager:latest
-    ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
+  dsmr:
+    image: ghcr.io/xirixiz/dsmr-reader-docker:latest
+    depends_on:
+      dsmrdb:
+        condition: service_healthy
+    container_name: dsmr
+    links:
+      - dsmrdb
+    cap_add:
+      - NET_ADMIN
+    restart: always
     volumes:
-      - /opt/nginx-proxy-manager/data:/data
-      - /opt/nginx-proxy-manager/letsencrypt:/etc/letsencrypt
-    restart: unless-stopped
-    networks:
-      - npm-network
-      - npm-internal
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/dsmr/backups:/app/backups
+      - ./config/dsmr/plugins/homewizard_p1.py:/app/dsmr_plugins/modules/homewizard_p1.py
+    environment:
+      - TZ=Europe/Amsterdam
+      - DJANGO_TIME_ZONE=Europe/Amsterdam
+      - VIRTUAL_HOST=localhost
+      - FILE__SECRET=/run/secrets/a_secret_file
+      - DSMRREADER_OPERATION_MODE=api_server
+      - DSMRREADER_PLUGINS=dsmr_plugins.modules.homewizard_p1
+    secrets:
+      - a_secret_file
+    ports:
+      - 7777:80
+      - 7779:443
+    #devices:
+    #  - "/dev/ttyUSB1:/dev/ttyUSB0"
+    # healthcheck:
+    #   disable: true
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-Lsf",
+          "http://127.0.0.1/about",
+          "-o",
+          "/dev/null",
+          "-w",
+          "HTTP_%{http_code}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  dsmrdb:
+    # When using Postgres, release 13.x, 14.x, 15.x, and 16.x are supported only
+    # due to the limited availability of client packages, especially for arm32v7
+    image: postgres:16-alpine
+    container_name: dsmrdb
+    restart: always
+    volumes:
+      - ./data/dsmrdb:/var/lib/postgresql/data
+    environment:
+      - TZ=Europe/Amsterdam
+      - PG_TZ=Europe/Amsterdam
+      - POSTGRES_USER=dsmrreader
+      - POSTGRES_PASSWORD=dsmrreader
+      - POSTGRES_DB=dsmrreader
+    healthcheck:
+      # postgres is the default user, please update with
+      # the DJANGO_DATABASE_USER used for dsmr-reader-docker
+      # default for DSMR Reader is dsmrreader
+      test: [ "CMD-SHELL", "pg_isready -U dsmrreader" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    ports:
+      - "8200:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: sander.dahlberg@outlook.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json
 
   homer:
-    container_name: homer
     image: b4bz/homer:latest
+    container_name: homer
     ports:
       - "8080:8080"
     volumes:
-      - /opt/homer/assets:/www/assets
+      - ./config/homer:/www/assets
     restart: always
     user: 1000:1000
+    networks:
+      - caddy
 
   uptime-kuma:
-    container_name: uptime-kuma
     image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
     ports:
       - "3001:3001"
     volumes:
-      - /opt/uptime-kuma:/app/data
+      - ./data/uptime-kuma:/app/data
     restart: always
 
   networkscanner:
-    image: networkscanner
+    build: ARPNetworkMonitor/.
+    container_name: networkscanner
     restart: always
+    pull_policy: never
     network_mode: host
     cap_add:
       - NET_RAW
-    deploy:
-      restart_policy:
-        condition: always
 
-#  jellyfin:
-#    container_name: jellyfin
-#    image: lscr.io/linuxserver/jellyfin:latest
-#    group_add:
-#      - "39"
-#    environment:
-#      - PUID=1000
-#      - PGID=1000
-#      - TZ=Europe/Amsterdam
-#      - DOCKER_MODS=linuxserver/mods:jellyfin-amd
-#    ports:
-#      - 8096:8096
-#    volumes:
-#      - /opt/jellyfin/config:/config
-#      - /mnt/aurora-media/series:/data/tvshows
-#      - /mnt/aurora-media/movies:/data/movies
-#    devices:
-#      - /dev/dri/renderD128:/dev/dri/renderD128
-#      - /dev/dri/card0:/dev/dri/card0    
-#     - /dev/dri:/dev/dri
-#    restart: unless-stopped
+secrets:
+  a_secret_file:
+    file : ./my_secret.txt
+
+volumes:
+  dsmrdb: null
+  dsmrdb_backups: null
 
 networks:
   npm-internal:
-  npm-network:
+  caddy:
     external: true

@@ -1,0 +1,175 @@
+---
+# Homepage configuration
+# See https://fontawesome.com/v5/search for icons options
+
+title: "Dahlberg Dashboard"
+subtitle: "Homer"
+logo: "logo.png"
+# icon: "fas fa-skull-crossbones" # Optional icon
+
+header: true
+footer: '<p>Created with <span class="has-text-danger">❤️</span> with <a href="https://bulma.io/">bulma</a>, <a href="https://vuejs.org/">vuejs</a> & <a href="https://fontawesome.com/">font awesome</a> // Fork me on <a href="https://github.com/bastienwirtz/homer"><i class="fab fa-github-alt"></i></a></p>' # set false if you want to hide it.
+
+# Optional theme customization
+theme: default
+colors:
+  light:
+    highlight-primary: "#3367d6"
+    highlight-secondary: "#4285f4"
+    highlight-hover: "#5a95f5"
+    background: "#f5f5f5"
+    card-background: "#ffffff"
+    text: "#363636"
+    text-header: "#ffffff"
+    text-title: "#303030"
+    text-subtitle: "#424242"
+    card-shadow: rgba(0, 0, 0, 0.1)
+    link: "#3273dc"
+    link-hover: "#363636"
+  dark:
+    highlight-primary: "#3367d6"
+    highlight-secondary: "#4285f4"
+    highlight-hover: "#5a95f5"
+    background: "#131313"
+    card-background: "#2b2b2b"
+    text: "#eaeaea"
+    text-header: "#ffffff"
+    text-title: "#fafafa"
+    text-subtitle: "#f5f5f5"
+    card-shadow: rgba(0, 0, 0, 0.4)
+    link: "#3273dc"
+    link-hover: "#ffdd57"
+
+# Optional message
+#message:
+#  #url: https://b4bz.io
+#  style: "is-dark" # See https://bulma.io/documentation/components/message/#colors for styling options.
+#  title: "Demo !"
+#  icon: "fa fa-grin"
+#  content: "This is a dummy homepage demo. <br /> Find more information on <a href='https://github.com/bastienwirtz/homer'>github.com/bastienwirtz/homer</a>"
+
+# Optional navbar
+# links: [] # Allows for navbar (dark mode, layout, and search) without any links
+links:
+  - name: "Contribute"
+    icon: "fab fa-github"
+    url: "https://github.com/bastienwirtz/homer"
+    target: "_blank" # optional html a tag target attribute
+  - name: "Wiki"
+    icon: "fas fa-book"
+    url: "https://www.wikipedia.org/"
+  # this will link to a second homer page that will load config from additional-page.yml and keep default config values as in config.yml file
+  # see url field and assets/additional-page.yml.dist used in this example:
+  #- name: "another page!"
+  #  icon: "fas fa-file-alt"
+  #  url: "#additional-page" 
+
+# Services
+# First level array represent a group.
+# Leave only a "items" key if not using group (group name, icon & tagstyle are optional, section separation will not be displayed).
+services:
+  - name: "Netwerk"
+    icon: "fas fa-cloud"
+    items:
+      - name: Ziggo modem
+        subtitle: Ziggo Connectbox modem beheer
+        logo: "assets/icons/JGsUwPVsSDiUvy_xRpcziAiscPqXzIdAAUfqpDbVyY4t6W1hft98KtVHEh84zGFznQ"
+        url: "http://192.168.1.1"
+      - name: "AuroraStation DSM"
+        logo: "assets/icons/synology-dsm.png"
+        subtitle: DSM of the Synology NAS
+        url: "https://aurorastation.dahlberg.home"        
+      - name: AP woonkamer
+        subtitle: WNDR4500v2 access point in woonkamer
+        logo: "assets/icons/ap.png"
+        url: "http://ap-woonkamer.dahlberg.home"
+      - name: AP bijkeuken
+        subtitle: WNDR4500v2 access point in bijkeuken
+        logo: "assets/icons/ap.png"
+        url: "http://ap-bijkeuken.dahlberg.home"
+      - name: "NAS Oplag"
+        logo: "assets/icons/nas.png"
+        subtitle: CH3SNAS with Alt-F
+        url: "http://192.168.1.150"
+      - name: "Switch werkkamer"
+        logo: "assets/icons/switch.png"
+        url: "http://switch-werkkamer.dahlberg.home"
+      - name: "Printer werkkamer"
+        logo: "assets/icons/printer.png"
+        url: "http://printer.dahlberg.home"
+  - name: "Applications"
+    icon: "fa-solid fa-house-user"
+    items:
+      - name: "Weer"
+        location: "Molenhoek"
+        apiKey: "7ec44ecbd8d668ebf02042073b157fb4"
+        units: "metric"
+        background: "square"
+        type: "OpenWeather"
+      - name: "Transmission"
+        subtitle: "Torrent client on AuroraStation"
+        logo: "assets/icons/Transmission_Icon.svg"
+        url: "http://transmission.dahlberg.home"
+      - name: "Portainer"
+#        type: "Portainer"
+        logo: "assets/icons/portainer.svg"
+        subtitle: "Container management"
+        url: "http://portainer.dahlberg.home"
+        apiKey: "ptr_B3igfB4qRuIWX8bZ0KPRBFzMLYlCrgAdo4TL30hosBw="
+      - name: "Nginx Proxy Manager"
+        logo: "assets/icons/nginxproxymanager.png"
+        subtitle: "Nginx Proxy Manager"
+        url: "http://npm.dahlberg.home"
+      - name: "Home Assistant"
+        logo: "assets/icons/home-assistant-logo-pretty.svg"
+        subtitle: "Home Assistant"
+        url: "https://home.dahlberg.nl"
+      - name: "MiLight Hub"
+        subtitle: "Controller MiLight light bulbs over WiFi"
+        logo: "assets/icons/milight-logo.png"
+        url: "http://milight-hub.dahlberg.home"        
+  - name: "Ping da house"
+    icon: "fa-solid fa-table-tennis-paddle-ball"
+    items:
+      - name: "Uptime Kuma"
+        subtitle: "Synology & Arctic"
+        logo: "assets/icons/uptime-kuma.svg"
+        url: "http://uptime.dahlberg.home"
+        slug: "home"
+        type: "UptimeKuma"
+      - name: "PC van Jasmijn"
+        subtitle: "Status pc"
+        logo: "assets/icons/jasmijn.png"
+        type: "UptimeKuma"
+        url: "http://uptime.dahlberg.home"
+        slug: "jasmijnpc"
+      - name: "Laptop van Jasmijn"
+        subtitle: "Status laptop"
+        logo: "assets/icons/jasmijn.png"
+        type: "UptimeKuma"
+        url: "http://uptime.dahlberg.home"
+        slug: "jasmijnlaptop"
+      - name: "PC van Ruben"
+        subtitle: "Status pc"
+        logo: "assets/icons/ruben.png"
+        type: "UptimeKuma"
+        url: "http://uptime.dahlberg.home"
+        slug: "rubenpc"
+      - name: "Laptop van Ruben"
+        subtitle: "Status laptop"
+        logo: "assets/icons/ruben.png"
+        type: "UptimeKuma"
+        url: "http://uptime.dahlberg.home"
+        slug: "rubenlaptop"
+      - name: "PC van Sander"
+        subtitle: "Status pc"
+        type: "UptimeKuma"
+        logo: "assets/icons/sander.png"
+        url: "http://uptime.dahlberg.home"
+        slug: "sanderpc"        
+      - name: "Laptop van Sander"
+        subtitle: "Status laptop"
+        logo: "assets/icons/sander.png"
+        type: "UptimeKuma"
+        url: "http://uptime.dahlberg.home"
+        slug: "papalaptop"

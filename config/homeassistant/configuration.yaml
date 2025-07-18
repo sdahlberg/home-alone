@@ -14,63 +14,130 @@ scene: !include scenes.yaml
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.19.0.0/16
-  server_host: 0.0.0.0
+    - !secret ha_trusted_proxy
+  server_host: !secret ha_server_host
+  login_attempts_threshold: 5
+
+mqtt: !include mqtt.yaml
+
+afvalbeheer:
+  wastecollector: dar
+  resources:
+    - restafval
+    - gft
+    - papier
+  postcode: !secret home_postal_code
+  streetnumber: !secret home_streetnumber
+  builtinicons: 1
+  builtiniconsnew: 1
+  dutch: 1
+
+input_text:
+  gft_schoonmaak_weeknummers:
+    name: GFT schoonmaak weeknummers
+    initial: !secret cleaning_container_weeknumbers
+
+input_boolean:
+  auto_slot_schuif:
+    name: Deur op slot
+    icon: mdi:lock
+
+template:
+  - sensor:
+    - name: "Current Theme"
+      state: "{{ states('frontend.theme') }}"
+    - name: Auto totaal kilometers
+      state: "{{ states('sensor.skoda_kodiaq_kilometerstand') | int }}"
+      unit_of_measurement: "km"
+    - name: Actieradius totaal afgerond
+      state: "{{ states('sensor.skoda_kodiaq_actieradius') | int }}"
+      unit_of_measurement: "km"
+      icon: mdi:gas-station
+    - name: Actieradius motor afgerond
+      state: "{{ states('sensor.skoda_kodiaq_bereik_motor') | int }}"
+      unit_of_measurement: "km"
+      icon: mdi:gas-station
+    - name: Actieradius accu afgerond
+      state: "{{ states('sensor.skoda_kodiaq_bereik_accu') | int }}"
+      unit_of_measurement: "km"
+      icon: mdi:ev-station
+    - name: Auto accu percentage
+      unit_of_measurement: "%"
+      state: >
+        {% set val = states('sensor.skoda_kodiaq_accupercentage') %}
+        {% if val.isnumeric() %}
+          {{ val }}
+        {% else %}
+          unknown
+        {% endif %}
+    - name: Laadtijd auto
+      state: >
+        {% set waarde = states('sensor.jouw_laadtijd_sensor') %}
+        {% if waarde in ['unknown', 'unavailable', 'none'] %}
+          Klaar met laden
+        {% else %}
+          {% set minuten = waarde | int %}
+          {% set uren = (minuten // 60) %}
+          {% set resterende_minuten = (minuten % 60) %}
+          {% if minuten < 1 %}
+            Geen resterende laadtijd
+          {% elif uren == 0 %}
+            {{ resterende_minuten }} minuten
+          {% elif resterende_minuten == 0 %}
+            {{ uren }} uur
+          {% else %}
+            {{ uren }} uur en {{ resterende_minuten }} minuten
+          {% endif %}
+        {% endif %}      
+    - name: Laatst bijgewerkt auto
+      state: >
+        {% set raw = states('sensor.skoda_kodiaq_laatst_bijgewerkt') %}
+        {% if raw not in ['unknown', 'unavailable', None] %}
+          {% set local = as_local(strptime(raw, '%Y-%m-%dT%H:%M:%S%z')) %}
+          {% set nu = now() %}
+          {% if local.date() == nu.date() %}
+            Vandaag om {{ local.strftime('%H:%M') }} bijgewerkt vanuit auto
+          {% elif (nu.date() - local.date()).days == 1 %}
+            Gisteren om {{ local.strftime('%H:%M') }} bijgewerkt vanuit auto
+          {% else %}
+            {{ local.strftime('%d-%m-%Y om %H:%M') }} bijgewerkt vanuit auto
+          {% endif %}
+        {% else %}
+          Geen laatst bijgewerkt datum
+        {% endif %}
+    - name: GFT schoonmaakweek?
+      state: >
+          {% set sort_date = states.sensor.dar_gft.attributes.Sort_date | string %}
+          {% if not sort_date %}
+            false
+          {% else %}
+            {% set dt = strptime(sort_date, '%Y%m%d') %}
+            {% set week_num = dt.isocalendar()[1] %}
+            {% set weeks = states('input_text.gft_schoonmaak_weeknummers').split(',') | map('int') | list %}
+            {{ week_num in weeks }}
+          {% endif %} 
 
 google_assistant:
-  project_id: home-74302
+  project_id: !secret google_assistant_project_id
   service_account: !include SERVICE_ACCOUNT.JSON
   report_state: true
+  expose_by_default: false
   entity_config:
     light.banklamp:
       name: lamp boven de bank
-
-mqtt:
-  light:
-    - name: "Alle lampen"
-      unique_id: "A38A64-Alle lampen"
-      schema: json
-      command_topic: "milight/0x257B/fut091/0"
-      state_topic: "milight/states/0x257B/fut091/0"
-      brightness: true
-      color_temp: true
-      effect: true
-      effect_list:
-        - night_mode
-        - "0"
-        - "1"
-        - "2"
-        - "3"
-        - "4"
-        - "5"
-        - "6"
-        - "7"
-        - "8"
-      min_mireds: 153
-      max_mireds: 370
-      qos: 0
-      retain: false
-    - name: "Banklamp"
-      unique_id: "A38A64-Banklamp"
-      schema: json
-      command_topic: "milight/0x215/fut091/3"
-      state_topic: "milight/states/0x215/fut091/3"
-      brightness: true
-      color_temp: true
-      effect: true
-      effect_list:
-        - night_mode
-        - "0"
-        - "1"
-        - "2"
-        - "3"
-        - "4"
-        - "5"
-        - "6"
-        - "7"
-        - "8"
-      min_mireds: 153
-      max_mireds: 370
-      qos: 0
-      retain: false
-
+      expose: true
+    light.lamp_bij_de_piano:
+      name: lamp bij de piano
+      expose: true
+    light.lamp_in_de_ensuitekast:
+      name: lamp in de kast
+      expose: true
+    light.keukenlampen:
+      name: keukenlampen
+      expose: true
+    light.eetkamerlampen:
+      name: eetkamerlampen
+      expose: true
+    light.lampen_in_de_keuken:
+      name: lampen in de keuken
+      expose: true

@@ -1,0 +1,188 @@
+light:
+  - name: "Banklamp"
+    unique_id: "A38A64-Banklamp"
+    schema: json
+    state_topic: "milight/states/0x215/fut091/3"
+    command_topic: "milight/0x215/fut091/3"
+    brightness: true
+    effect: true
+    effect_list:
+      - night_mode
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    supported_color_modes:
+      - color_temp
+    max_mireds: 370
+    min_mireds: 153
+    device:
+      manufacturer: esp8266_milight_hub
+      sw_version: 1.10.8
+      identifiers:
+        - 10717796
+        - 533
+        - fut091
+        - 3
+
+  - name: "Lampen hobby-hoek"
+    unique_id: "A38A64-Lampen hobby-hoek"
+    schema: json
+    state_topic: "milight/states/0x215/fut091/2"
+    command_topic: "milight/0x215/fut091/2"
+    brightness: true
+    effect: true
+    effect_list:
+      - night_mode
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    supported_color_modes:
+      - color_temp
+    max_mireds: 370
+    min_mireds: 153
+    device:
+      manufacturer: esp8266_milight_hub
+      sw_version: 1.10.8
+      identifiers:
+        - 10717796
+        - 533
+        - fut091
+        - 2
+    
+  - name: "Ensuite lampen"
+    unique_id: "A38A64-Ensuite lampen"
+    schema: json
+    command_topic: "milight/0x215/fut091/1"
+    state_topic: "milight/states/0x215/fut091/1"
+    brightness: true
+    effect: true
+    effect_list:
+      - night_mode
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    supported_color_modes:
+      - color_temp
+    max_mireds: 370
+    min_mireds: 153
+    device:
+      manufacturer: "esp8266_milight_hub"
+      sw_version: "1.10.8"
+      identifiers:
+        - 10717796
+        - 533
+        - "fut091"
+        - 1
+
+  - name: "Keuken"
+    unique_id: "A38A64-Keuken"
+    schema: json
+    command_topic: "milight/0x257B/fut091/3"
+    state_topic: "milight/states/0x257B/fut091/3"
+    brightness: true
+    min_mireds: 153
+    max_mireds: 370
+    effect: true
+    effect_list:
+      - night_mode
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    supported_color_modes:
+      - color_temp
+    device:
+      manufacturer: "esp8266_milight_hub"
+      sw_version: "1.10.8"
+      identifiers:
+        - 10717796
+        - 9595
+        - "fut091"
+        - 3
+
+  - name: "Eetkamerlampen"
+    unique_id: "A38A64-Eetkamerlampen"
+    schema: json
+    command_topic: "milight/0x257B/fut091/2"
+    state_topic: "milight/states/0x257B/fut091/2"    
+    device:
+      manufacturer: "esp8266_milight_hub"
+      sw_version: "1.10.8"
+      identifiers:
+        - 10717796
+        - 9595
+        - "fut091"
+        - 2
+    brightness: true
+    effect: true
+    effect_list:
+      - "night_mode"
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    max_mireds: 370
+    min_mireds: 153
+    supported_color_modes:
+      - color_temp
+
+  - name: Badkamerlampen
+    unique_id: "A38A64-Badkamerlampen"
+    schema: json
+    command_topic: "milight/0x216/rgb_cct/2"
+    state_topic: "milight/states/0x216/rgb_cct/2"    
+    device:
+      manufacturer: esp8266_milight_hub
+      sw_version: "1.10.8"
+      identifiers:
+        - 10717796
+        - 534
+        - "rgb_cct"
+        - 2
+    brightness: true
+    effect: true
+    effect_list:
+      - night_mode
+      - white_mode
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    max_mireds: 370
+    min_mireds: 153
+    supported_color_modes:
+      - color_temp
+      - rgb
